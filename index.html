@@ -105,8 +105,11 @@ h1{font-size:17px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter
 .notes-summary::-webkit-details-marker{display:none;}
 .notes-summary::before{content:'▸';font-size:9px;}
 details[open] .notes-summary::before{content:'▾';}
-.notes-area{width:100%;margin-top:8px;padding:10px 12px;font-family:var(--ff-sans);font-size:12px;color:var(--text-sub);background:var(--surface);border:1px solid var(--border);border-radius:8px;resize:vertical;min-height:80px;outline:none;line-height:1.6;}
-.notes-area:focus{border-color:var(--border-strong);}
+.notes-body{margin-top:10px;display:flex;flex-direction:column;gap:10px;}
+.notes-version{font-size:11px;color:var(--text-sub);}
+.notes-version-tag{font-family:var(--ff-mono);font-size:10px;font-weight:500;color:var(--text-hint);margin-bottom:4px;}
+.notes-version ul{padding-left:14px;display:flex;flex-direction:column;gap:2px;}
+.notes-version li{line-height:1.6;}
 </style>
 </head>
 <body>
@@ -159,13 +162,29 @@ details[open] .notes-summary::before{content:'▾';}
 
 <details class="notes-wrap">
   <summary class="notes-summary">업데이트 노트</summary>
-  <textarea id="notes-area" class="notes-area" placeholder="메모를 남겨요..."></textarea>
+  <div class="notes-body">
+    <div class="notes-version">
+      <div class="notes-version-tag">2026-04-24</div>
+      <ul>
+        <li>저녁 휴게 (19~20시) 토글 추가 — 켜면 근무시간에서 자동 제외</li>
+        <li>출근 시간 범위 확장 (8~14시) — 오전 반차 후 늦은 출근 입력 가능</li>
+        <li>퇴근 시간 범위 확장 (14~23시)</li>
+        <li>기본 출근 시간 변경 시 퇴근 목표도 함께 갱신되도록 수정</li>
+      </ul>
+    </div>
+    <div class="notes-version">
+      <div class="notes-version-tag">2026-04-23</div>
+      <ul>
+        <li>최초 배포</li>
+      </ul>
+    </div>
+  </div>
 </details>
 </div>
 
 <script>
 const DAYS=[{key:'mon',label:'월요일'},{key:'tue',label:'화요일'},{key:'wed',label:'수요일'},{key:'thu',label:'목요일'},{key:'fri',label:'금요일'}];
-const TARGET=40*60,LUNCH=60,LS_KEY='work_tracker',NOTES_KEY='work_tracker_notes';
+const TARGET=40*60,LUNCH=60,LS_KEY='work_tracker';
 let mode='burn',defaultIn='09:30',eveningBreak=false;
 
 function getWeekKey(){
@@ -278,13 +297,6 @@ function setMode(m2){
   document.getElementById('mode-even').className='mode-btn'+(m2==='even'?' active':'');
   DAYS.forEach(d=>{if(!state[d.key].off)state[d.key].out=getDefOut(d.key);});
   saveLS();render();
-}
-
-function initNotes(){
-  const area=document.getElementById('notes-area');
-  const saved=localStorage.getItem(NOTES_KEY);
-  if(saved)area.value=saved;
-  area.addEventListener('input',()=>localStorage.setItem(NOTES_KEY,area.value));
 }
 
 const todayIdx=[1,2,3,4,5].indexOf(new Date().getDay());
@@ -461,7 +473,6 @@ function updateSummary(){
 
 loadLS();
 initSettings();
-initNotes();
 document.getElementById('mode-burn').className='mode-btn'+(mode==='burn'?' active':'');
 document.getElementById('mode-even').className='mode-btn'+(mode==='even'?' active':'');
 render();
