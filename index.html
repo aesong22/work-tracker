@@ -241,7 +241,7 @@ function onDefChange(){
   const m=document.getElementById('def-in-m').value;
   const t=buildTime(h,m);if(!t)return;
   defaultIn=t;
-  DAYS.forEach(d=>{state[d.key].in=t;});
+  DAYS.forEach(d=>{state[d.key].in=t;state[d.key].out=getDefOut(d.key);});
   saveLS();render();
 }
 function setMode(m2){
