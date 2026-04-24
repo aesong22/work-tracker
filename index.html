@@ -156,17 +156,23 @@ function getWeekKey(){
   return mon.toISOString().slice(0,10);
 }
 function makeDefaultState(di){
+  const burnOut=fromMin(toMin(di)+570);
+  const evenOut=fromMin(toMin(di)+540);
+  const defOut=mode==='even'?evenOut:burnOut;
   return{
-    mon:{in:di,out:'19:00',off:false,annual:0},
-    tue:{in:di,out:'19:00',off:false,annual:0},
-    wed:{in:di,out:'19:00',off:false,annual:0},
-    thu:{in:di,out:'19:00',off:false,annual:0},
-    fri:{in:di,out:'',off:false,annual:0}
+    mon:{in:di,out:defOut,off:false,annual:0},
+    tue:{in:di,out:defOut,off:false,annual:0},
+    wed:{in:di,out:defOut,off:false,annual:0},
+    thu:{in:di,out:defOut,off:false,annual:0},
+    fri:{in:di,out:mode==='even'?evenOut:'',off:false,annual:0}
   };
 }
 let state=makeDefaultState(defaultIn);
 
-function getDefOut(key){return mode==='even'?'18:30':(key==='fri'?'':'19:00');}
+function getDefOut(key){
+  if(mode==='even')return fromMin(toMin(defaultIn)+540);
+  return key==='fri'?'':fromMin(toMin(defaultIn)+570);
+}
 
 function loadLS(){
   try{
@@ -247,7 +253,7 @@ function setMode(m2){
 }
 
 const todayIdx=[1,2,3,4,5].indexOf(new Date().getDay());
-const modeOut={burn:{mon:'19:00',tue:'19:00',wed:'19:00',thu:'19:00',fri:''},even:{mon:'18:30',tue:'18:30',wed:'18:30',thu:'18:30',fri:'18:30'}};
+
 
 // effectiveTarget: 휴무일 수만큼 8h 차감한 이번 주 실제 근무 목표
 // mt: 월~목 실제 근무 + 연차(유급이므로 포함)
@@ -289,7 +295,7 @@ function render(){
     const isFri=d.key==='fri',isToday=i===todayIdx;
     const inM=toMin(s.in),outM=toMin(s.out);
     const worked=s.off?null:workMin(inM,outM);
-    const mOut=toMin(modeOut[mode][d.key]);
+    const mOut=(isFri&&mode==='burn')?null:(mode==='even'?toMin(defaultIn)+540:toMin(defaultIn)+570);
     const annualMins=s.off?0:(s.annual||0)*60;
     const effectiveWorked=(worked!==null?worked:0)+annualMins;
     const pct=s.off?0:Math.min(100,Math.round(effectiveWorked/480*100));
